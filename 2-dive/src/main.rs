@@ -1,3 +1,41 @@
+#[derive(Debug, PartialEq)]
+struct Sub {
+    pos: Pos,
+    aim: u32,
+}
+
+impl Sub {
+    fn new() -> Self {
+        Sub {
+            pos: (0, 0),
+            aim: 0,
+        }
+    }
+
+    fn from_moves(moves: &[Move]) -> Self {
+        let mut sub = Sub::new();
+        sub.eval_all(moves);
+        sub
+    }
+
+    fn eval(&mut self, m: &Move) {
+        match m.direction {
+            Direction::Up => self.aim -= m.distance,
+            Direction::Down => self.aim += m.distance,
+            Direction::Forward => {
+                self.pos.0 += m.distance;
+                self.pos.1 += self.aim * m.distance;
+            }
+        }
+    }
+
+    fn eval_all(&mut self, moves: &[Move]) {
+        for m in moves {
+            self.eval(m);
+        }
+    }
+}
+
 type Pos = (u32, u32);
 
 #[derive(Debug, PartialEq)]
@@ -57,7 +95,7 @@ fn parse_file(s: &str) -> Vec<Move> {
         .unwrap()
 }
 
-fn eval_moves(moves: &[Move]) -> Pos {
+fn eval_simple_moves(moves: &[Move]) -> Pos {
     let mut pos = (0, 0);
 
     for m in moves {
@@ -69,10 +107,10 @@ fn eval_moves(moves: &[Move]) -> Pos {
 
 fn main() {
     let sample = parse_file(include_str!("sample.input"));
-    let sample_ans = eval_moves(&sample);
+    let sample_ans = eval_simple_moves(&sample);
 
     let input = parse_file(include_str!("my.input"));
-    let ans = eval_moves(&input);
+    let ans = eval_simple_moves(&input);
 
     println!("Part 1");
     println!(
@@ -81,6 +119,20 @@ fn main() {
         sample_ans.0 * sample_ans.1
     );
     println!("My Input: {:?} => {}", ans, ans.0 * ans.1);
+
+    println!("Part 2");
+    let sample_sub = Sub::from_moves(&sample);
+    println!(
+        "Sample Input: {:?} => {}",
+        sample_sub,
+        sample_sub.pos.0 * sample_sub.pos.1
+    );
+    let input_sub = Sub::from_moves(&input);
+    println!(
+        "My Input: {:?} => {}",
+        input_sub,
+        input_sub.pos.0 * input_sub.pos.1
+    );
 }
 
 #[cfg(test)]
