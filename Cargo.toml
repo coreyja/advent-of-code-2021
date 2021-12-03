@@ -3,4 +3,5 @@
 members = [
     "1-sonar-sweep",
     "2-dive",
+    "3-binary-diagnostic",
 ]
