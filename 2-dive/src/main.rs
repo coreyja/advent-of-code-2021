@@ -77,7 +77,7 @@ impl Move {
         })
     }
 
-    fn eval(&self, starting_pos: Pos) -> Pos {
+    fn simple_eval(&self, starting_pos: Pos) -> Pos {
         let (x, y) = starting_pos;
 
         match self.direction {
@@ -99,7 +99,7 @@ fn eval_simple_moves(moves: &[Move]) -> Pos {
     let mut pos = (0, 0);
 
     for m in moves {
-        pos = m.eval(pos);
+        pos = m.simple_eval(pos);
     }
 
     pos
