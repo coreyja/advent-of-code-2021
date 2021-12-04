@@ -49,26 +49,34 @@ impl<const N: usize> Board<N> {
         self.is_horizontal_win() || self.is_vertical_win()
     }
 
-    fn is_horizontal_win(&self) -> bool {
+    fn rows(&self) -> [[Cell; N]; N] {
         self.cells
+    }
+
+    fn columns(&self) -> [[Cell; N]; N] {
+        (0..N)
+            .map(|i| {
+                (0..N)
+                    .map(|j| self.cells[j][i])
+                    .collect_vec()
+                    .try_into()
+                    .expect("This is coming from a const N, so should always fit")
+            })
+            .collect_vec()
+            .try_into()
+            .expect("This is coming from a const N, so should always fit")
+    }
+
+    fn is_horizontal_win(&self) -> bool {
+        self.rows()
             .iter()
             .any(|row| row.iter().all(|cell| cell.marked))
     }
 
     fn is_vertical_win(&self) -> bool {
-        let mut column_index = 0;
-
-        while column_index < N {
-            let column = (0..N).map(|i| self.cells[i][column_index]).collect_vec();
-
-            if column.iter().all(|cell| cell.marked) {
-                return true;
-            }
-
-            column_index += 1;
-        }
-
-        false
+        self.columns()
+            .iter()
+            .any(|row| row.iter().all(|cell| cell.marked))
     }
 
     fn score(&self) -> Option<u64> {
@@ -159,4 +167,21 @@ fn main() -> Result<()> {
     println!("My: {:?}", part2_ans(include_str!("my.input"))?);
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_part_1() {
+        assert_eq!(Some(4512), part1_ans(include_str!("sample.input")).unwrap());
+        assert_eq!(Some(38594), part1_ans(include_str!("my.input")).unwrap());
+    }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(Some(1924), part2_ans(include_str!("sample.input")).unwrap());
+        assert_eq!(Some(21184), part2_ans(include_str!("my.input")).unwrap());
+    }
 }
