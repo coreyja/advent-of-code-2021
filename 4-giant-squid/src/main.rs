@@ -13,16 +13,22 @@ struct Board<const N: usize> {
     cells: [[Cell; N]; N],
 }
 
-fn parse_row<const N: usize>(row: &str) -> Result<[u64; N]> {
-    row.split_whitespace()
-        .map(|s| s.parse::<u64>().context("parse error"))
-        .collect::<Result<Vec<u64>>>()?
-        .try_into()
-        .map_err(|_| anyhow!("Error making row from vec"))
-}
-
 impl<const N: usize> Board<N> {
     fn from_str(s: &str) -> Result<Self> {
+        fn parse_row<const N: usize>(row: &str) -> Result<[u64; N]> {
+            row.split_whitespace()
+                .map(|s| s.parse::<u64>().context("parse error"))
+                .collect::<Result<Vec<u64>>>()?
+                .try_into()
+                .map_err(|v: Vec<_>| {
+                    anyhow!(
+                        "Error making row from vec, vec has length {} where N={}",
+                        v.len(),
+                        N
+                    )
+                })
+        }
+
         let cells = s
             .lines()
             .map(|line| {
@@ -32,7 +38,13 @@ impl<const N: usize> Board<N> {
             })
             .collect::<Result<Vec<_>>>()?
             .try_into()
-            .map_err(|_| anyhow!("Errors"))?;
+            .map_err(|v: Vec<_>| {
+                anyhow!(
+                    "Error making array of rows from vec, vec has length {} where N={}",
+                    v.len(),
+                    N
+                )
+            })?;
 
         Ok(Self { cells })
     }
@@ -60,11 +72,11 @@ impl<const N: usize> Board<N> {
                     .map(|j| self.cells[j][i])
                     .collect_vec()
                     .try_into()
-                    .expect("This is coming from a const N, so should always fit")
+                    .expect("This is coming from a const N Range, so should always fit")
             })
             .collect_vec()
             .try_into()
-            .expect("This is coming from a const N, so should always fit")
+            .expect("This is coming from a const N Range, so should always fit")
     }
 
     fn is_horizontal_win(&self) -> bool {
