@@ -59,7 +59,7 @@ impl<const N: usize> Board<N> {
         let mut column_index = 0;
 
         while column_index < N {
-            let column = (0..N).map(|i| self.cells[column_index][i]).collect_vec();
+            let column = (0..N).map(|i| self.cells[i][column_index]).collect_vec();
 
             if column.iter().all(|cell| cell.marked) {
                 return true;
@@ -125,10 +125,38 @@ fn part1_ans(s: &str) -> Result<Option<u64>> {
     Ok(None)
 }
 
+fn part2_ans(s: &str) -> Result<Option<u64>> {
+    let (chosen_numbers, boards) = parse_file(s)?;
+
+    let mut not_won_boards = boards;
+
+    for n in chosen_numbers.iter() {
+        for b in not_won_boards.iter_mut() {
+            b.mark(*n);
+        }
+
+        if not_won_boards.len() == 1 {
+            let last_board = &not_won_boards[0];
+
+            if let Some(score) = last_board.score() {
+                return Ok(Some(score * n));
+            }
+        }
+
+        not_won_boards = not_won_boards.into_iter().filter(|b| !b.is_win()).collect();
+    }
+
+    Ok(None)
+}
+
 fn main() -> Result<()> {
     println!("Part 1");
     println!("Sample: {:?}", part1_ans(include_str!("sample.input"))?);
     println!("My: {:?}", part1_ans(include_str!("my.input"))?);
+
+    println!("Part 2");
+    println!("Sample: {:?}", part2_ans(include_str!("sample.input"))?);
+    println!("My: {:?}", part2_ans(include_str!("my.input"))?);
 
     Ok(())
 }
