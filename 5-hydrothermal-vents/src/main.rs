@@ -27,29 +27,23 @@ impl Position {
             })
     }
 
-    fn next_towards(&self, other: &Position) -> Result<Position> {
+    fn next_towards(&self, other: &Position) -> Position {
         let mut x = self.x;
         let mut y = self.y;
 
-        if other.x == self.x {
-            if self.y < other.y {
-                y += 1;
-            } else {
-                y -= 1;
-            }
-        } else if other.y == self.y {
-            if self.x < other.x {
-                x += 1;
-            } else {
-                x -= 1;
-            }
-        } else {
-            return Err(anyhow!(
-                "Can't get next position towards a position that is not adjacent. Self: {:?} Other: {:?}", &self, &other
-            ));
+        if self.y < other.y {
+            y += 1;
+        } else if self.y > other.y {
+            y -= 1;
         }
 
-        Ok(Position { x, y })
+        if self.x < other.x {
+            x += 1;
+        } else if self.x > other.x {
+            x -= 1;
+        }
+
+        Position { x, y }
     }
 }
 
@@ -87,7 +81,7 @@ impl Line {
                 done = true;
             }
 
-            let next = current.next_towards(&end).unwrap();
+            let next = current.next_towards(&end);
 
             let last = current;
             current = next;
@@ -115,10 +109,13 @@ fn parse_input(s: &str) -> Result<Vec<Line>> {
     s.lines().map(|line| Line::from_str(line)).collect()
 }
 
-fn get_covered_counts(lines: &[Line]) -> HashMap<Position, usize> {
+fn get_covered_counts(
+    lines: &[Line],
+    line_filter: &dyn Fn(&&Line) -> bool,
+) -> HashMap<Position, usize> {
     let mut chained_iter: Box<dyn Iterator<Item = Position> + '_> = Box::new(std::iter::empty());
 
-    for line in lines.iter().filter(|l| l.is_non_diagonal()) {
+    for line in lines.iter().filter(line_filter) {
         chained_iter = Box::new(chained_iter.chain(line.to_cells()));
     }
 
@@ -127,7 +124,17 @@ fn get_covered_counts(lines: &[Line]) -> HashMap<Position, usize> {
 
 fn part1_ans(s: &str) -> Result<usize> {
     let lines = parse_input(s)?;
-    let covered_counts = get_covered_counts(&lines);
+    let covered_counts = get_covered_counts(&lines, &|l: &&Line| l.is_non_diagonal());
+
+    Ok(covered_counts
+        .iter()
+        .filter(|(_key, value)| **value >= 2)
+        .count())
+}
+
+fn part2_ans(s: &str) -> Result<usize> {
+    let lines = parse_input(s)?;
+    let covered_counts = get_covered_counts(&lines, &|_| true);
 
     Ok(covered_counts
         .iter()
@@ -139,6 +146,10 @@ fn main() -> Result<()> {
     println!("Part 1");
     println!("Sample: {}", part1_ans(include_str!("sample.input"))?);
     println!("My: {}", part1_ans(include_str!("my.input"))?);
+
+    println!("Part 2");
+    println!("Sample: {}", part2_ans(include_str!("sample.input"))?);
+    println!("My: {}", part2_ans(include_str!("my.input"))?);
 
     Ok(())
 }
