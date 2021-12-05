@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
@@ -31,16 +31,16 @@ impl Position {
         let mut x = self.x;
         let mut y = self.y;
 
-        if self.y < other.y {
-            y += 1;
-        } else if self.y > other.y {
-            y -= 1;
+        match self.y.cmp(&other.y) {
+            Ordering::Less => y += 1,
+            Ordering::Greater => y -= 1,
+            Ordering::Equal => {}
         }
 
-        if self.x < other.x {
-            x += 1;
-        } else if self.x > other.x {
-            x -= 1;
+        match self.x.cmp(&other.x) {
+            Ordering::Less => x += 1,
+            Ordering::Greater => x -= 1,
+            Ordering::Equal => {}
         }
 
         Position { x, y }
@@ -66,13 +66,12 @@ impl Line {
         Ok(Self { start, end })
     }
 
-    fn to_cells(&self) -> Box<dyn Iterator<Item = Position> + '_> {
+    fn to_cells(&self) -> Box<dyn Iterator<Item = Position>> {
         let mut current = self.start;
         let mut done = false;
+        let end = self.end;
 
         let iter = std::iter::from_fn(move || {
-            let end = self.end;
-
             if done {
                 return None;
             }
@@ -109,13 +108,13 @@ fn parse_input(s: &str) -> Result<Vec<Line>> {
     s.lines().map(|line| Line::from_str(line)).collect()
 }
 
-fn get_covered_counts(
-    lines: &[Line],
-    line_filter: &dyn Fn(&&Line) -> bool,
-) -> HashMap<Position, usize> {
+fn get_covered_counts<T>(lines: T) -> HashMap<Position, usize>
+where
+    T: Iterator<Item = Line>,
+{
     let mut chained_iter: Box<dyn Iterator<Item = Position> + '_> = Box::new(std::iter::empty());
 
-    for line in lines.iter().filter(line_filter) {
+    for line in lines {
         chained_iter = Box::new(chained_iter.chain(line.to_cells()));
     }
 
@@ -123,8 +122,8 @@ fn get_covered_counts(
 }
 
 fn part1_ans(s: &str) -> Result<usize> {
-    let lines = parse_input(s)?;
-    let covered_counts = get_covered_counts(&lines, &|l: &&Line| l.is_non_diagonal());
+    let lines = parse_input(s)?.into_iter().filter(|l| l.is_non_diagonal());
+    let covered_counts = get_covered_counts(lines);
 
     Ok(covered_counts
         .iter()
@@ -134,7 +133,7 @@ fn part1_ans(s: &str) -> Result<usize> {
 
 fn part2_ans(s: &str) -> Result<usize> {
     let lines = parse_input(s)?;
-    let covered_counts = get_covered_counts(&lines, &|_| true);
+    let covered_counts = get_covered_counts(lines.into_iter());
 
     Ok(covered_counts
         .iter()
@@ -159,7 +158,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_iter() {
+    fn test_iter_straight() {
         let l = Line {
             start: Position { x: 0, y: 0 },
             end: Position { x: 0, y: 5 },
@@ -174,6 +173,26 @@ mod tests {
                 Position { x: 0, y: 3 },
                 Position { x: 0, y: 4 },
                 Position { x: 0, y: 5 },
+            ]
+        );
+    }
+
+    #[test]
+    fn test_iter_diagnol() {
+        let l = Line {
+            start: Position { x: 0, y: 0 },
+            end: Position { x: 5, y: 5 },
+        };
+
+        assert_eq!(
+            l.to_cells().collect::<Vec<_>>(),
+            vec![
+                Position { x: 0, y: 0 },
+                Position { x: 1, y: 1 },
+                Position { x: 2, y: 2 },
+                Position { x: 3, y: 3 },
+                Position { x: 4, y: 4 },
+                Position { x: 5, y: 5 },
             ]
         );
     }
