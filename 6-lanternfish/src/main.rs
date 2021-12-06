@@ -5,29 +5,23 @@ use anyhow::Result;
 // This represents the number of snakes in each 'lifecycle'
 type Swarm = [usize; 9];
 
-fn parse_input(input: &str) -> Result<Vec<u32>> {
-    input
+fn parse_input(input: &str) -> Result<Swarm> {
+    let mut swarm: Swarm = [0; 9];
+
+    for f in input
         .trim()
         .split(',')
         .map(|s| {
             s.parse()
                 .map_err(|e| anyhow::anyhow!("Couldnt not parse to u32 {}", e))
         })
-        .collect::<Result<Vec<u32>>>()
-}
-
-fn reduce_swarn(vec: Vec<u32>) -> Swarm {
-    let mut swarm: Swarm = [0; 9];
-
-    let counts = vec.into_iter().counts();
-
-    for i in 0..9 {
-        if let Some(c) = counts.get(&i) {
-            swarm[i as usize] = *c;
-        }
+        .collect::<Result<Vec<u32>>>()?
+        .into_iter()
+    {
+        swarm[f as usize] += 1;
     }
 
-    swarm
+    Ok(swarm)
 }
 
 fn simulate_swarm(swarm: &mut Swarm) {
@@ -51,14 +45,12 @@ fn alive_after_days(mut swarm: Swarm, days: usize) -> usize {
 
 fn part1_ans(s: &str) -> Result<usize> {
     let swarm = parse_input(s)?;
-    let swarm = reduce_swarn(swarm);
 
     Ok(alive_after_days(swarm, 80))
 }
 
 fn part2_ans(s: &str) -> Result<usize> {
     let swarm = parse_input(s)?;
-    let swarm = reduce_swarn(swarm);
 
     Ok(alive_after_days(swarm, 256))
 }
