@@ -1,7 +1,13 @@
+use itertools::Itertools;
+use std::collections::HashMap;
+
 use anyhow::Result;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 struct Fish(u32);
+
+// This represents the number of snakes in each 'lifecycle'
+type Swarm = [usize; 9];
 
 fn parse_input(input: &str) -> Result<Vec<Fish>> {
     input
@@ -15,33 +21,51 @@ fn parse_input(input: &str) -> Result<Vec<Fish>> {
         .collect::<Result<Vec<Fish>>>()
 }
 
-fn simulate(initial_swarm: &[Fish]) -> Vec<Fish> {
-    let mut new_swarm = Vec::with_capacity(initial_swarm.len());
+fn reduce_swarn(vec: Vec<Fish>) -> Swarm {
+    let mut swarm: Swarm = [0; 9];
 
-    for fish in initial_swarm {
-        let mut new_fish = fish.clone();
-        if new_fish.0 == 0 {
-            new_fish.0 = 6;
-            new_swarm.push(Fish(8));
-        } else {
-            new_fish.0 -= 1;
+    let counts = vec.into_iter().counts();
+
+    for i in 0..9 {
+        if let Some(c) = counts.get(&Fish(i)) {
+            swarm[i as usize] = *c;
         }
-        new_swarm.push(new_fish);
     }
 
-    new_swarm
+    swarm
+}
+
+fn simulate_swarm(swarm: &mut Swarm) {
+    let zero = swarm[0];
+
+    for i in 0..8 {
+        swarm[i] = swarm[i + 1];
+    }
+
+    swarm[8] = zero;
+    swarm[6] += zero;
+}
+
+fn alive_after_days(swarm: &mut Swarm, days: usize) -> usize {
+    for _ in 0..days {
+        simulate_swarm(swarm);
+    }
+
+    swarm.iter().sum()
 }
 
 fn part1_ans(s: &str) -> Result<usize> {
-    const NUM_CYCLES: usize = 80;
+    let swarm = parse_input(s)?;
+    let mut swarm = reduce_swarn(swarm);
 
-    let mut swarm = parse_input(s)?;
+    Ok(alive_after_days(&mut swarm, 80))
+}
 
-    for _ in 0..NUM_CYCLES {
-        swarm = simulate(&swarm);
-    }
+fn part2_ans(s: &str) -> Result<usize> {
+    let swarm = parse_input(s)?;
+    let mut swarm = reduce_swarn(swarm);
 
-    Ok(swarm.len())
+    Ok(alive_after_days(&mut swarm, 256))
 }
 
 fn main() -> Result<()> {
@@ -49,9 +73,29 @@ fn main() -> Result<()> {
     println!("Sample: {}", part1_ans(include_str!("sample.input"))?);
     println!("My: {}", part1_ans(include_str!("my.input"))?);
 
-    // println!("Part 2");
-    // println!("Sample: {}", part2_ans(include_str!("sample.input"))?);
-    // println!("My: {}", part2_ans(include_str!("my.input"))?);
+    println!("Part 2");
+    println!("Sample: {}", part2_ans(include_str!("sample.input"))?);
+    println!("My: {}", part2_ans(include_str!("my.input"))?);
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_part1() {
+        assert_eq!(part1_ans(include_str!("sample.input")).unwrap(), 5934);
+        assert_eq!(part1_ans(include_str!("my.input")).unwrap(), 352151);
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(
+            part2_ans(include_str!("sample.input")).unwrap(),
+            26984457539
+        );
+        assert_eq!(part2_ans(include_str!("my.input")).unwrap(), 1601616884019);
+    }
 }
