@@ -6,4 +6,5 @@ members = [
     "3-binary-diagnostic",
     "4-giant-squid",
     "5-hydrothermal-vents",
+    "6-lanternfish",
 ]
