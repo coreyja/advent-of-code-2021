@@ -2,31 +2,27 @@ use itertools::Itertools;
 
 use anyhow::Result;
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-struct Fish(u32);
-
 // This represents the number of snakes in each 'lifecycle'
 type Swarm = [usize; 9];
 
-fn parse_input(input: &str) -> Result<Vec<Fish>> {
+fn parse_input(input: &str) -> Result<Vec<u32>> {
     input
         .trim()
         .split(',')
         .map(|s| {
             s.parse()
-                .map(Fish)
                 .map_err(|e| anyhow::anyhow!("Couldnt not parse to u32 {}", e))
         })
-        .collect::<Result<Vec<Fish>>>()
+        .collect::<Result<Vec<u32>>>()
 }
 
-fn reduce_swarn(vec: Vec<Fish>) -> Swarm {
+fn reduce_swarn(vec: Vec<u32>) -> Swarm {
     let mut swarm: Swarm = [0; 9];
 
     let counts = vec.into_iter().counts();
 
     for i in 0..9 {
-        if let Some(c) = counts.get(&Fish(i)) {
+        if let Some(c) = counts.get(&i) {
             swarm[i as usize] = *c;
         }
     }
