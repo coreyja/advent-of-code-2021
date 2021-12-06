@@ -41,9 +41,9 @@ fn simulate_swarm(swarm: &mut Swarm) {
     swarm[6] += zero;
 }
 
-fn alive_after_days(swarm: &mut Swarm, days: usize) -> usize {
+fn alive_after_days(mut swarm: Swarm, days: usize) -> usize {
     for _ in 0..days {
-        simulate_swarm(swarm);
+        simulate_swarm(&mut swarm);
     }
 
     swarm.iter().sum()
@@ -51,16 +51,16 @@ fn alive_after_days(swarm: &mut Swarm, days: usize) -> usize {
 
 fn part1_ans(s: &str) -> Result<usize> {
     let swarm = parse_input(s)?;
-    let mut swarm = reduce_swarn(swarm);
+    let swarm = reduce_swarn(swarm);
 
-    Ok(alive_after_days(&mut swarm, 80))
+    Ok(alive_after_days(swarm, 80))
 }
 
 fn part2_ans(s: &str) -> Result<usize> {
     let swarm = parse_input(s)?;
-    let mut swarm = reduce_swarn(swarm);
+    let swarm = reduce_swarn(swarm);
 
-    Ok(alive_after_days(&mut swarm, 256))
+    Ok(alive_after_days(swarm, 256))
 }
 
 fn main() -> Result<()> {
