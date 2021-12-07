@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Result};
-use itertools::Itertools;
 
 fn parse_input(s: &str) -> Result<Vec<u32>> {
     s.trim()
@@ -9,16 +8,6 @@ fn parse_input(s: &str) -> Result<Vec<u32>> {
                 .map_err(|e| anyhow!("Couldn't parse input: {}", e))
         })
         .collect()
-}
-
-fn median(array: &Vec<u32>) -> f64 {
-    if (array.len() % 2) == 0 {
-        let ind_left = array.len() / 2 - 1;
-        let ind_right = array.len() / 2;
-        (array[ind_left] + array[ind_right]) as f64 / 2.0
-    } else {
-        array[(array.len() / 2)] as f64
-    }
 }
 
 fn diff_u32(a: u32, b: u32) -> u32 {
@@ -64,7 +53,7 @@ fn part1_ans(s: &str) -> Result<(usize, u32)> {
 
     (0..nums.len())
         .map(|i| (i, sum_of_diff(&nums, i as u32)))
-        .min_by_key(|(i, x)| *x)
+        .min_by_key(|(_, x)| *x)
         .ok_or_else(|| anyhow!("No min found"))
 }
 
@@ -79,7 +68,7 @@ fn part2_ans(s: &str) -> Result<(usize, u32, u32)> {
                 sum_of_diff(&nums, i as u32),
             )
         })
-        .min_by_key(|(i, x, _)| *x)
+        .min_by_key(|(_, x, _)| *x)
         .ok_or_else(|| anyhow!("No min found"))
 }
 
