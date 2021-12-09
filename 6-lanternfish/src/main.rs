@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 use anyhow::Result;
 
 // This represents the number of snakes in each 'lifecycle'

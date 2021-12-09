@@ -105,7 +105,7 @@ impl Line {
 }
 
 fn parse_input(s: &str) -> Result<Vec<Line>> {
-    s.lines().map(|line| Line::from_str(line)).collect()
+    s.lines().map(Line::from_str).collect()
 }
 
 fn get_covered_counts<T>(lines: T) -> HashMap<Position, usize>

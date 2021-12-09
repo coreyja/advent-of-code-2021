@@ -52,22 +52,22 @@ impl Puzzle {
                 .unwrap(),
         );
 
-        self.order[4] = Some(*character_counts.iter().find(|(k, v)| **v == 4).unwrap().0);
-        self.order[5] = Some(*character_counts.iter().find(|(k, v)| **v == 9).unwrap().0);
-        self.order[1] = Some(*character_counts.iter().find(|(k, v)| **v == 6).unwrap().0);
+        self.order[4] = Some(*character_counts.iter().find(|(_, v)| **v == 4).unwrap().0);
+        self.order[5] = Some(*character_counts.iter().find(|(_, v)| **v == 9).unwrap().0);
+        self.order[1] = Some(*character_counts.iter().find(|(_, v)| **v == 6).unwrap().0);
 
         let a_or_c = character_counts
             .iter()
-            .filter(|(k, v)| **v == 8)
-            .map(|(k, v)| k.to_string())
+            .filter(|(_, v)| **v == 8)
+            .map(|(k, _)| k.to_string())
             .collect::<String>();
 
         self.order[2] = Some(a_or_c.chars().find(|x| self.order[0] != Some(*x)).unwrap());
 
         let d_or_g = character_counts
             .iter()
-            .filter(|(k, v)| **v == 7)
-            .map(|(k, v)| k.to_string())
+            .filter(|(_, v)| **v == 7)
+            .map(|(k, _)| k.to_string())
             .collect::<String>();
 
         self.order[3] = Some(
