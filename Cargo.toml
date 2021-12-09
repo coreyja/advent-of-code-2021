@@ -9,4 +9,5 @@ members = [
     "6-lanternfish",
     "7-whale-treachery",
     "8-seven-segment-search",
+    "9-smoke-basin",
 ]
