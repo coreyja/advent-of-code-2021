@@ -61,6 +61,9 @@ dependencies = [
 [[package]]
 name = "seven-segment-search"
 version = "0.1.0"
+dependencies = [
+ "itertools",
+]
 
 [[package]]
 name = "sonar-sweep"
