@@ -10,4 +10,5 @@ members = [
     "7-whale-treachery",
     "8-seven-segment-search",
     "9-smoke-basin",
+    "10-syntax-scoring",
 ]

@@ -81,6 +81,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "syntax-scoring"
+version = "0.1.0"
+
+[[package]]
 name = "whale-treachery"
 version = "0.1.0"
 dependencies = [
