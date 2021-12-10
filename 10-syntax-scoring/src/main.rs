@@ -26,26 +26,6 @@ fn score_valid(c: &char) -> u64 {
     }
 }
 
-fn fist_invalid_character(line: &str) -> Option<char> {
-    let mut stack = vec![];
-
-    for character in line.chars() {
-        match character {
-            '(' | '{' | '[' | '<' => stack.push(character),
-            ')' | '}' | ']' | '>' => {
-                if stack.last().map(close_char) == Some(character) {
-                    stack.pop();
-                } else {
-                    return Some(character);
-                }
-            }
-            _ => panic!("invalid character"),
-        }
-    }
-
-    None
-}
-
 fn parse_line(line: &str) -> Result<Vec<char>, char> {
     let mut stack = vec![];
 
@@ -99,7 +79,7 @@ fn part2_ans(s: &str) -> u64 {
         })
         .collect::<Vec<_>>();
 
-    scores.sort();
+    scores.sort_unstable();
 
     scores[scores.len() / 2]
 }
