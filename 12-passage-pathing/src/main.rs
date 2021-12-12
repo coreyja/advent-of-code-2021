@@ -17,10 +17,11 @@ fn parse_connections(input: &str) -> HashMap<&str, Vec<&str>> {
     connections
 }
 
-fn make_paths_part1<'input>(
+fn make_paths<'input>(
     connections: &HashMap<&'input str, Vec<&'input str>>,
-    to: &str,
+    to: &'input str,
     path: Vec<&'input str>,
+    path_filter: &dyn Fn(&Vec<&'input str>, &'input str) -> bool,
 ) -> Vec<Vec<&'input str>> {
     let mut paths = Vec::new();
 
@@ -29,50 +30,48 @@ fn make_paths_part1<'input>(
     if from == to {
         paths.push(path);
     } else {
-        for next in connections.get(from).unwrap() {
-            if !path.contains(next) || next.chars().next().unwrap().is_ascii_uppercase() {
-                let mut new_path = path.clone();
-                new_path.push(next);
-                paths.append(&mut make_paths_part1(connections, to, new_path));
-            }
+        for next in connections
+            .get(from)
+            .unwrap()
+            .iter()
+            .filter(|next| path_filter(&path, next))
+        {
+            let mut new_path = path.clone();
+            new_path.push(next);
+            paths.append(&mut make_paths(connections, to, new_path, path_filter));
         }
     }
 
     paths
 }
 
-fn make_paths_part2<'input>(
+fn make_paths_part1<'input>(
     connections: &HashMap<&'input str, Vec<&'input str>>,
-    to: &str,
+    to: &'input str,
     path: Vec<&'input str>,
 ) -> Vec<Vec<&'input str>> {
-    let mut paths = Vec::new();
+    make_paths(connections, to, path, &|path, next| {
+        !path.contains(&next) || next.chars().next().unwrap().is_ascii_uppercase()
+    })
+}
 
-    let from = *path.last().unwrap();
-
-    if from == to {
-        paths.push(path);
-    } else {
-        for next in connections.get(from).unwrap() {
-            if !path.contains(next)
-                || next.chars().next().unwrap().is_ascii_uppercase()
-                || (*next != "start"
-                    && *next != "end"
-                    && path
-                        .iter()
-                        .filter(|&x| x.chars().next().unwrap().is_ascii_lowercase())
-                        .counts()
-                        .iter()
-                        .all(|(_, count)| *count == 1))
-            {
-                let mut new_path = path.clone();
-                new_path.push(next);
-                paths.append(&mut make_paths_part2(connections, to, new_path));
-            }
-        }
-    }
-
-    paths
+fn make_paths_part2<'input>(
+    connections: &HashMap<&'input str, Vec<&'input str>>,
+    to: &'input str,
+    path: Vec<&'input str>,
+) -> Vec<Vec<&'input str>> {
+    make_paths(connections, to, path, &|path, next| {
+        !path.contains(&next)
+            || next.chars().next().unwrap().is_ascii_uppercase()
+            || (next != "start"
+                && next != "end"
+                && path
+                    .iter()
+                    .filter(|&x| x.chars().next().unwrap().is_ascii_lowercase())
+                    .counts()
+                    .iter()
+                    .all(|(_, count)| *count == 1))
+    })
 }
 
 fn part1_ans(s: &str) -> Result<usize> {
