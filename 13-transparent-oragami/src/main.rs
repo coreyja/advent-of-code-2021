@@ -132,7 +132,7 @@ fn part2_ans(s: &str) -> String {
         .map(|y| {
             let v = lines_grouped.entry(y).or_default();
             (0..=max_x + 1)
-                .map(|x| if v.iter().any(|p| p.x == x) { "#" } else { " " })
+                .map(|x| if v.iter().any(|p| p.x == x) { '#' } else { ' ' })
                 .collect::<String>()
         })
         .join("\n")
