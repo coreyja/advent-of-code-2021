@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
 struct Pos {
@@ -19,8 +19,8 @@ impl Pos {
 
 #[derive(Debug)]
 enum Fold {
-    Horizontal(u16),
-    Vertical(u16),
+    HorizontalAxis(u16),
+    VerticalAxis(u16),
 }
 
 impl Fold {
@@ -31,8 +31,8 @@ impl Fold {
         let pos = iter.next().unwrap().parse().unwrap();
 
         match x_or_y {
-            "y" => Fold::Horizontal(pos),
-            "x" => Fold::Vertical(pos),
+            "y" => Fold::HorizontalAxis(pos),
+            "x" => Fold::VerticalAxis(pos),
             _ => panic!("invalid fold"),
         }
     }
@@ -57,10 +57,10 @@ impl Input {
     fn fold_first(&mut self) {
         if let Some(fold) = self.folds.pop_front() {
             match fold {
-                Fold::Horizontal(pos) => {
+                Fold::HorizontalAxis(pos) => {
                     self.fold_horizontal(pos);
                 }
-                Fold::Vertical(pos) => {
+                Fold::VerticalAxis(pos) => {
                     self.fold_vertical(pos);
                 }
             }
@@ -113,8 +113,50 @@ fn part1_ans(s: &str) -> usize {
     input.holes.len()
 }
 
+fn part2_ans(s: &str) -> String {
+    let mut input = Input::parse(s);
+
+    while !input.folds.is_empty() {
+        input.fold_first();
+    }
+
+    let max_x = input.holes.iter().map(|p| p.x).max().unwrap();
+    let max_y = input.holes.iter().map(|p| p.y).max().unwrap();
+
+    let mut lines_grouped: HashMap<u32, Vec<Pos>> = HashMap::new();
+    for h in input.holes.iter() {
+        lines_grouped.entry(h.y).or_default().push(h.clone());
+    }
+
+    (0..=max_y)
+        .map(|y| {
+            let v = lines_grouped.entry(y).or_default();
+            (0..=max_x + 1)
+                .map(|x| if v.iter().any(|p| p.x == x) { "#" } else { " " })
+                .collect::<String>()
+        })
+        .join("\n")
+    // input
+    //     .holes
+    //     .iter()
+    //     .sorted_by_key(|h| h.y)
+    //     .group_by(|h| h.y)
+    //     .into_iter()
+    //     .sorted_by_key(|(k, _)| k)
+    //     .map(|(_k, mut v)| {
+    //         (0..=max_x + 1)
+    //             .map(|x| if v.any(|p| p.x == x) { "#" } else { " " })
+    //             .collect::<String>()
+    //     })
+    //     .join("\n")
+}
+
 fn main() {
     println!("Part 1");
     println!("Sample: {}", part1_ans(include_str!("sample.input")));
     println!("My: {}", part1_ans(include_str!("my.input")));
+
+    println!("Part 2");
+    println!("Sample:\n{}", part2_ans(include_str!("sample.input")));
+    println!("My:\n{}", part2_ans(include_str!("my.input")));
 }
