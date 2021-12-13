@@ -136,19 +136,6 @@ fn part2_ans(s: &str) -> String {
                 .collect::<String>()
         })
         .join("\n")
-    // input
-    //     .holes
-    //     .iter()
-    //     .sorted_by_key(|h| h.y)
-    //     .group_by(|h| h.y)
-    //     .into_iter()
-    //     .sorted_by_key(|(k, _)| k)
-    //     .map(|(_k, mut v)| {
-    //         (0..=max_x + 1)
-    //             .map(|x| if v.any(|p| p.x == x) { "#" } else { " " })
-    //             .collect::<String>()
-    //     })
-    //     .join("\n")
 }
 
 fn main() {
