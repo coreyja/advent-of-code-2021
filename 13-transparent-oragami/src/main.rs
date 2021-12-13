@@ -123,22 +123,16 @@ fn part2_ans(s: &str) -> String {
     let max_x = input.holes.iter().map(|p| p.x).max().unwrap();
     let max_y = input.holes.iter().map(|p| p.y).max().unwrap();
 
-    let mut lines_grouped: HashMap<u32, Vec<Pos>> = HashMap::new();
+    let mut lines_grouped: HashMap<u32, Vec<_>> = HashMap::new();
     for h in input.holes.into_iter() {
-        lines_grouped.entry(h.y).or_default().push(h);
+        lines_grouped.entry(h.y).or_default().push(h.x);
     }
 
     (0..=max_y)
         .map(|y| {
             let v = lines_grouped.entry(y).or_default();
             (0..=max_x + 1)
-                .map(|x| {
-                    if v.iter().any(|p| p.x == x) {
-                        '█'
-                    } else {
-                        ' '
-                    }
-                })
+                .map(|x| if v.contains(&x) { '█' } else { ' ' })
                 .collect::<String>()
         })
         .join("\n")
