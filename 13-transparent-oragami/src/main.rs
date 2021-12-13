@@ -124,8 +124,8 @@ fn part2_ans(s: &str) -> String {
     let max_y = input.holes.iter().map(|p| p.y).max().unwrap();
 
     let mut lines_grouped: HashMap<u32, Vec<Pos>> = HashMap::new();
-    for h in input.holes.iter() {
-        lines_grouped.entry(h.y).or_default().push(h.clone());
+    for h in input.holes.into_iter() {
+        lines_grouped.entry(h.y).or_default().push(h);
     }
 
     (0..=max_y)
